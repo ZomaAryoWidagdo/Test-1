@@ -1,0 +1,32 @@
+[
+  {
+    "name": "Produk A",
+    "stock": 10000,
+    "price": 15000
+  },
+  {
+    "name": "Produk B",
+    "stock": 50000,
+    "price": 5000
+  },
+  {
+    "name": "Produk C",
+    "stock": 5000,
+    "price": 25000
+  },
+  {
+    "name": "Produk D",
+    "stock": 8000,
+    "price": 13000
+  },
+  {
+    "name": "Produk E",
+    "stock": 20000,
+    "price": 1000
+  },
+  {
+    "name": "Produk F",
+    "stock": 300,
+    "price": 50000
+  }
+]
