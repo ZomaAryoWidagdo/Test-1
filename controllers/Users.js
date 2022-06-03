@@ -36,8 +36,6 @@ class UserController {
         role: response.role,
       };
 
-      console.log(`masuk`);
-
       const jwtToken = createToken(payload);
 
       res.status(200).json({

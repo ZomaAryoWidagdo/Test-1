@@ -21,7 +21,7 @@ class ItemController {
       if (!data) {
         throw `DataNotFound`;
       } else {
-        res.status(200).json({ data });
+        res.status(200).json(data);
       }
     } catch (error) {
       next(error);
@@ -40,7 +40,7 @@ class ItemController {
 
       const response = await Item.create(data);
 
-      res.status(201).json({ response });
+      res.status(201).json(response);
     } catch (err) {
       next(err);
     }
@@ -65,7 +65,6 @@ class ItemController {
     try {
       const { id } = req.params;
       const { sales, action } = req.body;
-
       const response = await Item.findByPk(+id);
 
       if (!response) throw "DataNotFound";
