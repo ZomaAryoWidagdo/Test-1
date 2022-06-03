@@ -1,10 +1,16 @@
-const { Transaction, sequelize } = require("../models");
+const { Transaction, sequelize, Item, Company } = require("../models");
 const axios = require("axios");
 class TransactionController {
   static async getAll(req, res, next) {
     try {
       const data = await Transaction.findAll({
         attributes: { exclude: ["createdAt", "updatedAt"] },
+        include: [
+          {
+            model: Item,
+          },
+          { model: Company },
+        ],
       });
       res.status(200).json(data);
     } catch (error) {
@@ -17,6 +23,12 @@ class TransactionController {
     try {
       const data = await Transaction.findByPk(id, {
         attributes: { exclude: ["createdAt", "updatedAt"] },
+        include: [
+          {
+            model: Item,
+          },
+          { model: Company },
+        ],
       });
       if (!data) {
         throw `DataNotFound`;
