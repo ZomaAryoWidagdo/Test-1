@@ -1,5 +1,5 @@
 const { Transaction, sequelize } = require("../models");
-
+const axios = require("axios");
 class TransactionController {
   static async getAll(req, res, next) {
     try {
@@ -21,7 +21,7 @@ class TransactionController {
       if (!data) {
         throw `DataNotFound`;
       } else {
-        res.status(200).json({ data });
+        res.status(200).json(data);
       }
     } catch (error) {
       next(error);
@@ -32,18 +32,32 @@ class TransactionController {
     const t = await sequelize.transaction();
     try {
       const { CompanyId, ItemId, price, sales } = req.body;
-
-      const data = {
+      const { access_token } = req.headers;
+      const payload = {
         CompanyId,
         ItemId,
         price,
         sales,
       };
 
-      const response = await Transaction.create(data);
+      const response = await Transaction.create(payload, { transaction: t });
 
-      res.status(201).json({ response });
+      const { data } = await axios({
+        method: "patch",
+        url: `http://localhost:4001/items/${ItemId}`,
+        data: {
+          sales,
+          action: "sales",
+        },
+        headers: {
+          access_token,
+        },
+      });
+
+      res.status(201).json({ response, data });
+      await t.commit();
     } catch (err) {
+      await t.rollback();
       next(err);
     }
   }
@@ -56,50 +70,61 @@ class TransactionController {
       await Transaction.destroy({
         where: { id },
       });
-      res
-        .status(200)
-        .json({ message: `${response.name} Successfully Deleted` });
+      res.status(200).json({
+        message: `Transaction Id ${response.id} Successfully Deleted`,
+      });
     } catch (error) {
       next(error);
     }
   }
   static async update(req, res, next) {
+    const t = await sequelize.transaction();
     try {
       const { id } = req.params;
-      const { sales, action } = req.body;
-
+      const { CompanyId, ItemId, price, sales } = req.body;
+      let action;
+      let updatedSales;
       const response = await Transaction.findByPk(+id);
 
       if (!response) throw "DataNotFound";
 
-      let newQty = response.stock;
-
-      let message;
-
-      if (action === "sales") {
-        await Transaction.decrement("stock", {
-          by: sales,
+      await Transaction.update(
+        { CompanyId, ItemId, price, sales },
+        {
           where: {
             id,
           },
-        });
-        message = `Stock updated from ${response.stock} to ${(newQty -=
-          sales)}`;
-      } else if (action === "correction") {
-        await Transaction.increment("stock", {
-          by: sales,
-          where: {
-            id,
-          },
-        });
-        message = `Stock corrected from ${response.stock} to ${(newQty +=
-          +sales)}`;
+        }
+      );
+
+      if (response.sales > sales) {
+        action = "correction";
+        updatedSales = response.sales - sales;
+      } else if (response.sales < sales) {
+        action = "sales";
+        updatedSales = sales - response.sales;
       }
 
-      res.status(200).json({
-        message,
+      const { data } = await axios({
+        method: "patch",
+        url: `http://localhost:4001/items/${ItemId}`,
+        data: {
+          sales,
+          action,
+        },
+        headers: {
+          access_token,
+        },
       });
+
+      res.status(200).json({
+        before: response,
+        after: { id: response.id },
+      });
+      await t.commit();
     } catch (error) {
+      await t.rollback();
+
       next(error);
     }
   }
