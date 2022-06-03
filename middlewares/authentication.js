@@ -1,11 +1,11 @@
 const { readToken } = require("../helpers/jwt");
-const { User } = require("../models/");
+const { User } = require("../models");
 
 async function authentication(req, res, next) {
   try {
-    const { accesstoken } = req.headers;
+    const { access_token } = req.headers;
 
-    const payload = readToken(accesstoken);
+    const payload = readToken(access_token);
 
     const userTrue = await User.findOne({
       where: {

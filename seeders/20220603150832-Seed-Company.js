@@ -12,7 +12,7 @@ module.exports = {
      * }], {});
      */
 
-    const data = require("../data/Companies");
+    const data = require("../data/Companies.json");
 
     data.forEach((x) => {
       x.createdAt = x.updatedAt = new Date();
