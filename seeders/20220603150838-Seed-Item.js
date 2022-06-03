@@ -12,7 +12,7 @@ module.exports = {
      * }], {});
      */
 
-    const data = require("../data/Items");
+    const data = require("../data/Items.json");
 
     data.forEach((x) => {
       x.createdAt = x.updatedAt = new Date();

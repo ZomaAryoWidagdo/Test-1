@@ -43,7 +43,7 @@ class UserController {
       res.status(200).json({
         id: response.id,
         email: response.email,
-        accesstoken: jwtToken,
+        access_token: jwtToken,
       });
     } catch (error) {
       next(error);
