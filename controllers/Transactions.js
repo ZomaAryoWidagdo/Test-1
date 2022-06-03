@@ -1,9 +1,9 @@
-const { Item } = require("../models");
+const { Transaction, sequelize } = require("../models");
 
-class ItemController {
+class TransactionController {
   static async getAll(req, res, next) {
     try {
-      const data = await Item.findAll({
+      const data = await Transaction.findAll({
         attributes: { exclude: ["createdAt", "updatedAt"] },
       });
       res.status(200).json(data);
@@ -15,7 +15,7 @@ class ItemController {
   static async getById(req, res, next) {
     const { id } = req.params;
     try {
-      const data = await Item.findByPk(id, {
+      const data = await Transaction.findByPk(id, {
         attributes: { exclude: ["createdAt", "updatedAt"] },
       });
       if (!data) {
@@ -29,16 +29,18 @@ class ItemController {
   }
 
   static async add(req, res, next) {
+    const t = await sequelize.transaction();
     try {
-      const { name, price, stock } = req.body;
+      const { CompanyId, ItemId, price, sales } = req.body;
 
       const data = {
-        name,
+        CompanyId,
+        ItemId,
         price,
-        stock,
+        sales,
       };
 
-      const response = await Item.create(data);
+      const response = await Transaction.create(data);
 
       res.status(201).json({ response });
     } catch (err) {
@@ -48,10 +50,10 @@ class ItemController {
   static async delete(req, res, next) {
     try {
       const { id } = req.params;
-      const response = await Item.findByPk(+id);
+      const response = await Transaction.findByPk(+id);
       if (!response) throw "DataNotFound";
 
-      await Item.destroy({
+      await Transaction.destroy({
         where: { id },
       });
       res
@@ -66,7 +68,7 @@ class ItemController {
       const { id } = req.params;
       const { sales, action } = req.body;
 
-      const response = await Item.findByPk(+id);
+      const response = await Transaction.findByPk(+id);
 
       if (!response) throw "DataNotFound";
 
@@ -75,7 +77,7 @@ class ItemController {
       let message;
 
       if (action === "sales") {
-        await Item.decrement("stock", {
+        await Transaction.decrement("stock", {
           by: sales,
           where: {
             id,
@@ -84,7 +86,7 @@ class ItemController {
         message = `Stock updated from ${response.stock} to ${(newQty -=
           sales)}`;
       } else if (action === "correction") {
-        await Item.increment("stock", {
+        await Transaction.increment("stock", {
           by: sales,
           where: {
             id,
@@ -103,4 +105,4 @@ class ItemController {
   }
 }
 
-module.exports = ItemController;
+module.exports = TransactionController;

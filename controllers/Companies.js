@@ -1,9 +1,9 @@
-const { Item } = require("../models");
+const { Company } = require("../models");
 
-class ItemController {
+class CompanyController {
   static async getAll(req, res, next) {
     try {
-      const data = await Item.findAll({
+      const data = await Company.findAll({
         attributes: { exclude: ["createdAt", "updatedAt"] },
       });
       res.status(200).json(data);
@@ -15,7 +15,7 @@ class ItemController {
   static async getById(req, res, next) {
     const { id } = req.params;
     try {
-      const data = await Item.findByPk(id, {
+      const data = await Company.findByPk(id, {
         attributes: { exclude: ["createdAt", "updatedAt"] },
       });
       if (!data) {
@@ -30,15 +30,14 @@ class ItemController {
 
   static async add(req, res, next) {
     try {
-      const { name, price, stock } = req.body;
+      const { name, location } = req.body;
 
       const data = {
         name,
-        price,
-        stock,
+        location,
       };
 
-      const response = await Item.create(data);
+      const response = await Company.create(data);
 
       res.status(201).json({ response });
     } catch (err) {
@@ -48,10 +47,10 @@ class ItemController {
   static async delete(req, res, next) {
     try {
       const { id } = req.params;
-      const response = await Item.findByPk(+id);
+      const response = await Company.findByPk(+id);
       if (!response) throw "DataNotFound";
 
-      await Item.destroy({
+      await Company.destroy({
         where: { id },
       });
       res
@@ -64,38 +63,24 @@ class ItemController {
   static async update(req, res, next) {
     try {
       const { id } = req.params;
-      const { sales, action } = req.body;
+      const { name, location } = req.body;
 
-      const response = await Item.findByPk(+id);
+      const response = await Company.findByPk(+id);
 
       if (!response) throw "DataNotFound";
 
-      let newQty = response.stock;
-
-      let message;
-
-      if (action === "sales") {
-        await Item.decrement("stock", {
-          by: sales,
+      await Company.update(
+        { name, location },
+        {
           where: {
             id,
           },
-        });
-        message = `Stock updated from ${response.stock} to ${(newQty -=
-          sales)}`;
-      } else if (action === "correction") {
-        await Item.increment("stock", {
-          by: sales,
-          where: {
-            id,
-          },
-        });
-        message = `Stock corrected from ${response.stock} to ${(newQty +=
-          +sales)}`;
-      }
+        }
+      );
 
       res.status(200).json({
-        message,
+        before: response,
+        after: { id: response.id, name, location },
       });
     } catch (error) {
       next(error);
@@ -103,4 +88,4 @@ class ItemController {
   }
 }
 
-module.exports = ItemController;
+module.exports = CompanyController;
