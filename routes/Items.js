@@ -7,7 +7,7 @@ router.use(authentication);
 
 router.get("/", ItemController.getAll);
 router.get("/:id", ItemController.getById);
-router.post("/:id", ItemController.add);
+router.post("/add", ItemController.add);
 router.patch("/:id", ItemController.update);
 router.delete("/:id", ItemController.delete);
 
