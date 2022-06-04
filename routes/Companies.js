@@ -7,7 +7,7 @@ router.use(authentication);
 
 router.get("/", CompanyController.getAll);
 router.get("/:id", CompanyController.getById);
-router.post("/:id", CompanyController.add);
+router.post("/add", CompanyController.add);
 router.put("/:id", CompanyController.update);
 router.delete("/:id", CompanyController.delete);
 

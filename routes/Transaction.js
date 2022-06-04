@@ -7,7 +7,7 @@ router.use(authentication);
 
 router.get("/", TransactionController.getAll);
 router.get("/:id", TransactionController.getById);
-router.post("/:id", TransactionController.add);
+router.post("/add", TransactionController.add);
 router.put("/:id", TransactionController.update);
 router.delete("/:id", TransactionController.delete);
 
